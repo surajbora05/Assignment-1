@@ -1,1 +1,75 @@
-test1
+
+root@ip-172-31-12-110:~# ls
+example-voting-app  snap
+root@ip-172-31-12-110:~# cd example-voting-app/
+root@ip-172-31-12-110:~/example-voting-app# ls
+LICENSE  MAINTAINERS  README.md  architecture.png  docker-compose-javaworker.yml  docker-compose-simple.yml  docker-compose.yml  docker-stack.yml  dockercloud.yml  k8s-specifications  result  vote  worker
+root@ip-172-31-12-110:~/example-voting-app# ll
+total 132
+drwxr-xr-x 8 root root  4096 May 14 04:34 ./
+drwx------ 7 root root  4096 May 14 04:34 ../
+drwxr-xr-x 8 root root  4096 May 14 04:34 .git/
+drwxr-xr-x 2 root root  4096 May 14 04:34 .github/
+-rw-r--r-- 1 root root    33 May 14 04:34 .gitignore
+-rw-r--r-- 1 root root 10758 May 14 04:34 LICENSE
+-rw-r--r-- 1 root root   185 May 14 04:34 MAINTAINERS
+-rw-r--r-- 1 root root  2182 May 14 04:34 README.md
+-rw-r--r-- 1 root root 54824 May 14 04:34 architecture.png
+-rw-r--r-- 1 root root   808 May 14 04:34 docker-compose-javaworker.yml
+-rw-r--r-- 1 root root   400 May 14 04:34 docker-compose-simple.yml
+-rw-r--r-- 1 root root   808 May 14 04:34 docker-compose.yml
+-rw-r--r-- 1 root root  1692 May 14 04:34 docker-stack.yml
+-rw-r--r-- 1 root root   609 May 14 04:34 dockercloud.yml
+drwxr-xr-x 2 root root  4096 May 14 04:34 k8s-specifications/
+drwxr-xr-x 5 root root  4096 May 14 04:34 result/
+drwxr-xr-x 4 root root  4096 May 14 04:34 vote/
+drwxr-xr-x 3 root root  4096 May 14 04:34 worker/
+root@ip-172-31-12-110:~/example-voting-app# cd k8s-specifications/
+root@ip-172-31-12-110:~/example-voting-app/k8s-specifications# ll
+total 44
+drwxr-xr-x 2 root root 4096 May 14 04:34 ./
+drwxr-xr-x 8 root root 4096 May 14 04:34 ../
+-rw-r--r-- 1 root root  401 May 14 04:34 db-deployment.yaml
+-rw-r--r-- 1 root root  146 May 14 04:34 db-service.yaml
+-rw-r--r-- 1 root root  402 May 14 04:34 redis-deployment.yaml
+-rw-r--r-- 1 root root  152 May 14 04:34 redis-service.yaml
+-rw-r--r-- 1 root root  299 May 14 04:34 result-deployment.yaml
+-rw-r--r-- 1 root root  195 May 14 04:34 result-service.yaml
+-rw-r--r-- 1 root root  289 May 14 04:34 vote-deployment.yaml
+-rw-r--r-- 1 root root  192 May 14 04:34 vote-service.yaml
+-rw-r--r-- 1 root root  292 May 14 04:34 worker-deployment.yaml
+root@ip-172-31-12-110:~/example-voting-app/k8s-specifications# kubectl apply -f .
+deployment.apps/db created
+service/db created
+deployment.apps/redis created
+service/redis created
+deployment.apps/result created
+service/result created
+deployment.apps/vote created
+service/vote created
+deployment.apps/worker created
+root@ip-172-31-12-110:~/example-voting-app/k8s-specifications# kubectl get svc
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+db           ClusterIP   10.110.54.107    <none>        5432/TCP         14s
+kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP          6h47m
+redis        ClusterIP   10.106.106.52    <none>        6379/TCP         14s
+result       NodePort    10.100.230.136   <none>        5001:31001/TCP   14s
+vote         NodePort    10.100.252.162   <none>        5000:31000/TCP   14s
+
+root@ip-172-31-12-110:~/example-voting-app/k8s-specifications# kubectl delete po vote-7d884dd585-7sx7h
+pod "vote-7d884dd585-7sx7h" deleted
+root@ip-172-31-12-110:~/example-voting-app/k8s-specifications# kubectl delete po worker-6fc5d5b668-qx5ql
+pod "worker-6fc5d5b668-qx5ql" deleted
+root@ip-172-31-12-110:~/example-voting-app/k8s-specifications# kubectl delete po ^C
+root@ip-172-31-12-110:~/example-voting-app/k8s-specifications# kubectl delete po db-58cc845644-9jpt8
+pod "db-58cc845644-9jpt8" deleted
+root@ip-172-31-12-110:~/example-voting-app/k8s-specifications# kubectl get po -o wide
+NAME                      READY   STATUS    RESTARTS      AGE     IP          NODE               NOMINATED NODE   READINESS GATES
+db-58cc845644-8b2f5       1/1     Running   0             46s     10.32.0.5   ip-172-31-12-110   <none>           <none>
+redis-6878558678-98gw2    1/1     Running   0             18m     10.32.0.7   ip-172-31-12-110   <none>           <none>
+result-86bc6f7b5d-6gxnt   1/1     Running   1 (16s ago)   18m     10.32.0.8   ip-172-31-12-110   <none>           <none>
+vote-7d884dd585-4zzpk     1/1     Running   0             2m16s   10.32.0.9   ip-172-31-12-110   <none>           <none>
+worker-6fc5d5b668-2gqbd   1/1     Running   1 (15s ago)   77s     10.32.0.6   ip-172-31-12-110   <none>           <none>
+root@ip-172-31-12-110:~/example-voting-app/k8s-specifications#
+
+## after deleting Vote/worker/dB, New Pods are created, and voting application and result app was reachable
